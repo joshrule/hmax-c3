@@ -12,6 +12,7 @@ function models = trainC3(c2,labels,method,options)
     if (nargin < 3) rounds = 100; end;
     [nClasses, nImgs] = size(labels);
     for iClass = 1:nClasses
+        a = tic;
         fprintf('%d/%d\n',iClass,nClasses);
         training = equalRep(labels(iClass,:));
         trainX = c2(:,training)';
@@ -21,7 +22,15 @@ function models = trainC3(c2,labels,method,options)
             trainY = double(trainY).*2 - 1; % [0,1] -> [-1,1]
             models{iClass} = gentleBoost(trainX',trainY',options);
           case {'svm','libsvm'}
-            models{iClass} = svmtrain(trainY,trainX,options);
+            detector = svmtrain(trainY,trainX,options.svmTrainFlags);
+            positives = c2(:, logical(labels(iClass,:)));
+            negatives = c2(:,~logical(labels(iClass,:)));
+            shuffledPossibleNegs = randperm(size(negatives,2));
+            negsInUse = negatives(:,shuffledPossibleNegs(1:floor(size(negatives,2)/10)));
+            models{iClass} = hardNegativeMining(positives,negsInUse, ...
+              detector,options.startPerIter,options.alpha,options.threshold, ...
+              options.svmTrainFlags, options.svmTestFlags);
         end
+        fprintf('%d: %.3fs to train class\n',iClass,toc(a));
     end
 end
