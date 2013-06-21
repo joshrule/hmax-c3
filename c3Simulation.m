@@ -12,7 +12,8 @@ function c3Simulation(outDir,params)
 
     if ~exist([outDir 'c2.mat'],'file') || ~exist([outDir 'splits.mat'],'file')
         [trainC2,testC2,trainLabels,testLabels,trainFiles,testFiles] = ...
-        prepareC3(p.c2Dir,p.patchSet,p.trainingFactor,p.minPerClass);
+          prepareC3(p.trainDir,p.testDir,p.patchSet,p.trainN,p.testN, ...
+	  p.minPerClass);
         cvsplit = cv(testLabels,p.nTrainingExamples,p.nRuns);
         save([outDir 'c2.mat'],'trainC2','testC2','-v7.3');
         save([outDir 'splits.mat'],'trainLabels','testLabels', ...

@@ -9,7 +9,6 @@ function models = trainC3(c2,labels,method,options)
 % rounds: a scalar, the number of rounds of gentleBoost training to use
 %
 % models: the gentleBoost classifiers on which the activations are based
-    if (nargin < 3) rounds = 100; end;
     [nClasses, nImgs] = size(labels);
     for iClass = 1:nClasses
         a = tic;
