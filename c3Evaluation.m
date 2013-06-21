@@ -1,5 +1,13 @@
 function c3Evaluation(outDir,params)
-
+% c3Evaluation(outDir,params)
+%
+% Perform a series of performance evaluations on the C2 and C3 activations
+% generated during a full C3 simulation. All data is written to files in
+% 'outDir'.
+%
+% outDir: string, directory to which to write the evaluation information
+% params: struct, the parameters governing the simulation itself, see 
+%   'c3Simulation.m' for details
     p = params;
 
     load([outDir 'c2.mat'],testC2);

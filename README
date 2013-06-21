@@ -1,0 +1,25 @@
+README for 'c3'
+===============
+
+An extension for HMAX, C3 units are binary classifiers trained on a particular
+semantic concept. Passing C2 activations from the same patch set as that used to
+train a C3 unit thus tells us how much the object in the image represents the
+category on which the C3 unit was trained. We are learning to transform shape
+into semantics.
+
+  - c3Evaluation.m: Perform a series of performance evaluations on the C2 and C3
+    activations generated during a full C3 simulation. All data is written to
+    files in 'outDir'.
+
+  - c3Simulation.m:  Given a set of parameters, load up a set of C2 responses
+    for testing and training, use the training matrix to generate a set of C3
+    classifiers, and use those C3 classifiers to generate C3 activations for the
+    C2 test data.  Save all data to disk.
+
+  - prepareC3.m: Create the testing/training split data for a C3 simulation
+
+  - README: this file
+
+  - testC3.m: Generate HMAX C3 responses
+
+  - trainC3.m: Generate classifiers to act as HMAX C3 units
