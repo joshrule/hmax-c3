@@ -21,7 +21,7 @@ function models = trainC3(c2,labels,method,options)
     for iClass = 1:nClasses
         a = tic;
         fprintf('%d/%d\n',iClass,nClasses);
-        training = equalRep(labels(iClass,:));
+        training = equalRep(labels(iClass,:),inf,0.5);
         trainX = c2(:,training)';
         trainY = labels(iClass,training)';
         switch lower(method)
