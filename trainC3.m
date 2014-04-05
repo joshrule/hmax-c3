@@ -18,10 +18,10 @@ function models = trainC3(c2,labels,method,options)
 %
 % models: the binary classifiers on which C3 activations are based
     [nClasses, nImgs] = size(labels);
+    models = cell(nClasses,1);
     for iClass = 1:nClasses
         a = tic;
-        fprintf('%d/%d\n',iClass,nClasses);
-        training = equalRep(labels(iClass,:),inf,0.5);
+        training = equalRep(labels(iClass,:),inf,options.ratio);
         trainX = c2(:,training)';
         trainY = labels(iClass,training)';
         switch lower(method)
@@ -29,12 +29,14 @@ function models = trainC3(c2,labels,method,options)
             trainY = double(trainY).*2 - 1; % [0,1] -> [-1,1]
             models{iClass} = gentleBoost(trainX',trainY',options);
           case {'svm','libsvm'}
-            models{iClass} = svmtrain(trainY,trainX,options.svmTrainFlags);
+	    % non-mining
+            models{iClass} = svmtrain(trainY,trainX,options);
+            % mining
 %           detector = svmtrain(trainY,trainX,options.svmTrainFlags);
 %           positives = c2(:, logical(labels(iClass,:)));
 %           negatives = c2(:,~logical(labels(iClass,:)));
 %           shuffledPossibleNegs = randperm(size(negatives,2));
-%           negsInUse = negatives(:,shuffledPossibleNegs(1:floor(size(negatives,2)/10)));
+%           negsInUse = negatives(:,shuffledPossibleNegs(1:floor(size(negatives,2)/options.div)));
 %           models{iClass} = hardNegativeMining(positives,negsInUse, ...
 %             detector,options.startPerIter,options.alpha,options.threshold, ...
 %             options.svmTrainFlags, options.svmTestFlags);
