@@ -29,6 +29,8 @@ function c3Simulation(outDir,params)
 %   nRuns: scalar, the number of cross-validation runs
 %   method: string, 'gb' or 'svm', the classifier to use
 
+    rng(0,'twister'); 
+    fprintf('Pseudorandom Number Generator Reset\nrng(0,''twister'')\n\n');
     ensureDir(outDir);
 
     if ~exist([outDir 'params.mat'],'file')
@@ -54,6 +56,7 @@ function c3Simulation(outDir,params)
     fprintf('test/train splits generated\n');
 
     if ~exist([outDir 'models.mat'],'file')
+    	% some randomness involved...
         models = trainC3(trainC2,trainLabels,p.method,p.trainOptions);
         save([outDir 'models.mat'],'models','-v7.3');
     else
