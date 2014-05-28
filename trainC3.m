@@ -1,5 +1,5 @@
-function models = trainC3(c2,labels,method,options)
-% models = trainC3(c2,labels,method,options)
+function models = trainC3(c2,labels,method,options,ratio)
+% models = trainC3(c2,labels,method,options,ratio)
 %
 % generate classifiers to act as HMAX C3 units
 %
@@ -15,13 +15,14 @@ function models = trainC3(c2,labels,method,options)
 %       alpha: scalar, governs the growth of the hard negative mining
 %       startPerIter: scalar, number of images in the first mining iteration
 %       threshold: scalar, probability above which a negative is "hard"
+% ratio: scalar, the number of negatives for each positive
 %
 % models: the binary classifiers on which C3 activations are based
     [nClasses, nImgs] = size(labels);
     for iClass = 1:nClasses
         a = tic;
         fprintf('%d/%d\n',iClass,nClasses);
-        training = equalRep(labels(iClass,:),inf,0.5);
+        training = equalRep(labels(iClass,:),inf,ratio);
         trainX = c2(:,training)';
         trainY = labels(iClass,training)';
         switch lower(method)
@@ -29,15 +30,15 @@ function models = trainC3(c2,labels,method,options)
             trainY = double(trainY).*2 - 1; % [0,1] -> [-1,1]
             models{iClass} = gentleBoost(trainX',trainY',options);
           case {'svm','libsvm'}
-            models{iClass} = svmtrain(trainY,trainX,options.svmTrainFlags);
-%           detector = svmtrain(trainY,trainX,options.svmTrainFlags);
-%           positives = c2(:, logical(labels(iClass,:)));
-%           negatives = c2(:,~logical(labels(iClass,:)));
-%           shuffledPossibleNegs = randperm(size(negatives,2));
-%           negsInUse = negatives(:,shuffledPossibleNegs(1:floor(size(negatives,2)/10)));
-%           models{iClass} = hardNegativeMining(positives,negsInUse, ...
-%             detector,options.startPerIter,options.alpha,options.threshold, ...
-%             options.svmTrainFlags, options.svmTestFlags);
+%           models{iClass} = svmtrain(trainY,trainX,options.svmTrainFlags);
+            detector = svmtrain(trainY,trainX,options.svmTrainFlags);
+            positives = c2(:, logical(labels(iClass,:)));
+            negatives = c2(:,~logical(labels(iClass,:)));
+            shuffledPossibleNegs = randperm(size(negatives,2));
+            negsInUse = negatives(:,shuffledPossibleNegs(1:floor(size(negatives,2)/10)));
+            models{iClass} = hardNegativeMining(positives,negsInUse, ...
+              detector,options.startPerIter,options.alpha,options.threshold, ...
+              options.svmTrainFlags, options.svmTestFlags);
         end
         fprintf('%d: %.3fs to train class\n',iClass,toc(a));
     end
