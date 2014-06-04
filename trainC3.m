@@ -30,15 +30,15 @@ function models = trainC3(c2,labels,method,options,ratio)
             trainY = double(trainY).*2 - 1; % [0,1] -> [-1,1]
             models{iClass} = gentleBoost(trainX',trainY',options);
           case {'svm','libsvm'}
-%           models{iClass} = svmtrain(trainY,trainX,options.svmTrainFlags);
-            detector = svmtrain(trainY,trainX,options.svmTrainFlags);
-            positives = c2(:, logical(labels(iClass,:)));
-            negatives = c2(:,~logical(labels(iClass,:)));
-            shuffledPossibleNegs = randperm(size(negatives,2));
-            negsInUse = negatives(:,shuffledPossibleNegs(1:floor(size(negatives,2)/10)));
-            models{iClass} = hardNegativeMining(positives,negsInUse, ...
-              detector,options.startPerIter,options.alpha,options.threshold, ...
-              options.svmTrainFlags, options.svmTestFlags);
+            models{iClass} = svmtrain(trainY,trainX,options.svmTrainFlags);
+%           detector = svmtrain(trainY,trainX,options.svmTrainFlags);
+%           positives = c2(:, logical(labels(iClass,:)));
+%           negatives = c2(:,~logical(labels(iClass,:)));
+%           shuffledPossibleNegs = randperm(size(negatives,2));
+%           negsInUse = negatives(:,shuffledPossibleNegs(1:floor(size(negatives,2)/10)));
+%           models{iClass} = hardNegativeMining(positives,negsInUse, ...
+%             detector,options.startPerIter,options.alpha,options.threshold, ...
+%             options.svmTrainFlags, options.svmTestFlags);
         end
         fprintf('%d: %.3fs to train class\n',iClass,toc(a));
     end
