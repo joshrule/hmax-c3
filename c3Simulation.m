@@ -57,7 +57,7 @@ function c3Simulation(outDir,params)
 
     if ~exist([outDir 'models.mat'],'file')
     	% some randomness involved...
-        models = trainC3(trainC2,trainLabels,p.method,p.trainOptions,p.repRatio);
+        models = trainC3(trainC2,trainLabels,p.method,p.trainOptions,p.repRatio,p.mining);
         save([outDir 'models.mat'],'models','-v7.3');
     else
         load([outDir 'models.mat']);
