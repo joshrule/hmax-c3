@@ -16,7 +16,7 @@ function models = trainC3(c2,labels,method,options,ratio,mine)
 %       startPerIter: scalar, number of images in the first mining iteration
 %       threshold: scalar, probability above which a negative is "hard"
 % ratio: scalar, the number of negatives for each positive
-% mine: boolean, if true, then mine, else don't mine
+% mine: struct, holds the mining parameters
 %
 % models: the binary classifiers on which C3 activations are based
     [nClasses, nImgs] = size(labels);
@@ -32,19 +32,18 @@ function models = trainC3(c2,labels,method,options,ratio,mine)
             trainY = double(trainY).*2 - 1; % [0,1] -> [-1,1]
             models{iClass} = gentleBoost(trainX',trainY',options);
           case {'svm','libsvm'}
-	    if mine
-                detector = svmtrain(trainY,trainX,options.svmTrainFlags);
+            if ~mine.mine
+                models{iClass} = svmtrain(trainY,trainX,options);
+            else
+                detector = svmtrain(trainY,trainX,options);
                 positives = c2(:, logical(labels(iClass,:)));
                 negatives = c2(:,~logical(labels(iClass,:)));
                 shuffledPossibleNegs = randperm(size(negatives,2));
                 negsInUse = negatives(:,shuffledPossibleNegs(1:floor(size(negatives,2)/10)));
                 models{iClass} = hardNegativeMining(positives,negsInUse, ...
-                  detector,options.startPerIter,options.alpha,options.threshold, ...
-                  options.svmTrainFlags, options.svmTestFlags);
-            else
-                models{iClass} = svmtrain(trainY,trainX,options.svmTrainFlags);
+                  detector,mine.startPerIter,mine.alpha,mine.threshold, ...
+                  options, mine.svmTestFlags);
             end
-        end
-        fprintf('%d: %.3fs to train class\n',iClass,toc(a));
+          end
     end
 end
